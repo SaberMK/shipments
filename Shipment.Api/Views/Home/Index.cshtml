@@ -1,0 +1,122 @@
+﻿@model IEnumerable<Shipment.Models.Order>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/jquery-3.4.1.js")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var jsonGetter = function (url) {
+                payload = [];
+                var tds = $(".column");
+                tds.each(function (x) {
+
+                    var item = Object.create(null);
+
+                    $(this).children().each(function (y) {
+                        if ($(this).is(':hidden')) {
+                            item['id'] = $(this).val();
+                        } else {
+                            item['isChecked'] = $(this).prop('checked')
+                        }
+                    })
+                    if (item['isChecked'])
+                        payload.push(item['id']);
+                })
+
+                console.log(payload)
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: JSON.stringify(payload),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        console.log(' Data', data);
+                        $('#jsonView').val(JSON.stringify(data));
+                    },
+                    error: function () {
+                        console.log('error')
+                    }
+                })
+            }
+
+            var payload = [];
+
+            var sendButton = document.getElementById('btnSubmit');
+            var sendButtonSP = document.getElementById('btnSubmitSP');
+
+            sendButton.addEventListener('click', function (e) {
+                jsonGetter('orders');
+            });
+
+            sendButtonSP.addEventListener('click', function (e) {
+                jsonGetter('orders-sp');
+            });
+        })
+    </script>
+}
+
+@{
+    ViewBag.Title = "Orders";
+}
+
+
+<h2>Orders</h2>
+<table class="table" id="orders">
+    <tr>
+        <th>
+            Selected
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Address)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.City)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.State)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td class="column">
+                @Html.HiddenFor(modelItem => item.Id)
+                <input type="checkbox" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.State)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Country)
+            </td>
+        </tr>
+    }
+
+</table>
+<button type="submit" name="action" id="btnSubmit" style="margin-bottom: 20px;">Send</button>
+<button type="submit" name="action" id="btnSubmitSP" style="margin-bottom: 20px;">Send by SP</button>
+<br />
+<textarea id="jsonView" style="max-width:unset;width:700px;max-height:unset;height:400px;"></textarea>
